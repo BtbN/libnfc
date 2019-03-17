@@ -39,7 +39,7 @@
 
 #  ifdef _WIN32
 /* Windows platform */
-#    ifndef _WINDLL
+#    if !defined(_WINDLL) && !defined(LIBNFC_STATIC)
 /* CMake compilation */
 #      ifdef nfc_EXPORTS
 #        define  NFC_EXPORT __declspec(dllexport)

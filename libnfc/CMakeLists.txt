@@ -69,7 +69,12 @@ IF(LIBNFC_LOG)
     LIST(APPEND LIBRARY_SOURCES log log-internal)
   ENDIF(WIN32)
 ENDIF(LIBNFC_LOG)
-ADD_LIBRARY(nfc SHARED ${LIBRARY_SOURCES})
+
+IF(LIBNFC_STATIC)
+  ADD_LIBRARY(nfc STATIC ${LIBRARY_SOURCES})
+ELSE(LIBNFC_STATIC)
+  ADD_LIBRARY(nfc SHARED ${LIBRARY_SOURCES})
+ENDIF(LIBNFC_STATIC)
 
 IF(PCSC_FOUND)
   TARGET_LINK_LIBRARIES(nfc ${PCSC_LIBRARIES})
@@ -89,19 +94,23 @@ IF(WIN32)
   # Libraries that are windows specific
   TARGET_LINK_LIBRARIES(nfc wsock32)
 
-  ADD_CUSTOM_COMMAND(
-    OUTPUT libnfc.lib
-    COMMAND ${DLLTOOL} -d ${CMAKE_CURRENT_SOURCE_DIR}/../contrib/win32/nfc.def -l ${CMAKE_CURRENT_BINARY_DIR}/libnfc.lib ${CMAKE_CURRENT_BINARY_DIR}/libnfc.dll
-    DEPENDS nfc ${CMAKE_CURRENT_SOURCE_DIR}/../contrib/win32/nfc.def
-  )
-  ADD_CUSTOM_TARGET(win32lib ALL DEPENDS libnfc.lib)
+  IF(LIBNFC_STATIC)
+    ADD_CUSTOM_TARGET(win32lib ALL DEPENDS nfc)
+  ELSE(LIBNFC_STATIC)
+    ADD_CUSTOM_COMMAND(
+      OUTPUT libnfc.lib
+      COMMAND ${DLLTOOL} -d ${CMAKE_CURRENT_SOURCE_DIR}/../contrib/win32/nfc.def -l ${CMAKE_CURRENT_BINARY_DIR}/libnfc.lib ${CMAKE_CURRENT_BINARY_DIR}/libnfc.dll
+      DEPENDS nfc ${CMAKE_CURRENT_SOURCE_DIR}/../contrib/win32/nfc.def
+    )
+    ADD_CUSTOM_TARGET(win32lib ALL DEPENDS libnfc.lib)
+
+    # At compile time we need the .LIB file, we place it in the lib directory
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libnfc.lib DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries)
+  ENDIF(LIBNFC_STATIC)
 
   # On Windows the shared (runtime) library should be either in the same 
   # directory as the excutables or in the path, we add it to same directory
-  INSTALL(TARGETS nfc RUNTIME DESTINATION bin COMPONENT libraries)
-
-  # At compile time we need the .LIB file, we place it in the lib directory
-  INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libnfc.lib DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries)
+  INSTALL(TARGETS nfc RUNTIME DESTINATION bin ARCHIVE DESTINATION lib COMPONENT libraries)
 ELSE(WIN32)
   INSTALL(TARGETS nfc LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libraries)
 ENDIF(WIN32)

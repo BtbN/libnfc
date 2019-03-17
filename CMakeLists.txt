@@ -65,6 +65,11 @@ option (BUILD_UTILS "build utils ON/OFF" ON)
 
 option (BUILD_DEBPKG "build debian package ON/OFF" OFF)
 
+option (LIBNFC_STATIC "build static libnfc ON/OFF" OFF)
+IF(LIBNFC_STATIC)
+  ADD_DEFINITIONS(-DLIBNFC_STATIC)
+ENDIF(LIBNFC_STATIC)
+
 
 # Doxygen
 SET(builddir "${CMAKE_BINARY_DIR}")
