@@ -20,7 +20,7 @@ IF(NOT PCSC_FOUND)
    # Will find PC/SC headers both on Mac and Windows
    FIND_PATH(PCSC_INCLUDE_DIRS WinSCard.h)
    # PCSC library is for Mac, WinSCard library is for Windows
-   FIND_LIBRARY(PCSC_LIBRARIES NAMES PCSC libwinscard)
+   FIND_LIBRARY(PCSC_LIBRARIES NAMES PCSC libwinscard winscard)
 ENDIF(NOT PCSC_FOUND)
 
 INCLUDE(FindPackageHandleStandardArgs)
