@@ -93,6 +93,7 @@
 
 #if defined (DRIVER_ACR122_USB_ENABLED)
 #  include "drivers/acr122_usb.h"
+#  include "buses/usbbus.h"
 #endif /* DRIVER_ACR122_USB_ENABLED */
 
 #if defined (DRIVER_ACR122S_ENABLED)
@@ -101,6 +102,7 @@
 
 #if defined (DRIVER_PN53X_USB_ENABLED)
 #  include "drivers/pn53x_usb.h"
+#  include "buses/usbbus.h"
 #endif /* DRIVER_PN53X_USB_ENABLED */
 
 #if defined (DRIVER_ARYGON_ENABLED)
@@ -218,6 +220,10 @@ nfc_exit(nfc_context *context)
   }
 
   nfc_context_free(context);
+
+#ifdef LIBUSB_HAS_DEINIT
+  usb_deinit();
+#endif
 }
 
 /** @ingroup dev
